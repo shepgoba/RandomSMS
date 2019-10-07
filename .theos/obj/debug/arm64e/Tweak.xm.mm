@@ -66,9 +66,21 @@ static void _logos_method$_ungrouped$TLAlertSystemSoundController$playAlert$with
 
 
 static NSURL * _logos_method$_ungrouped$TLAlertSystemSoundController$randomURL(_LOGOS_SELF_TYPE_NORMAL TLAlertSystemSoundController* _LOGOS_SELF_CONST __unused self, SEL __unused _cmd) {
-	return [NSURL URLWithString:@"/var/mobile/Media/yeet.mp3"];
+	NSString *tonesPath = @"/var/mobile/Media/iTunes_Control/Ringtones/";
+	NSArray* allFilesAtTonesPath = [[NSFileManager defaultManager] contentsOfDirectoryAtPath:tonesPath error:NULL];
+	NSMutableArray *m4rFiles = [[NSMutableArray alloc] init];
+	[allFilesAtTonesPath enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
+		NSString *filename = (NSString *)obj;
+		NSString *extension = [[filename pathExtension] lowercaseString];
+		if ([extension isEqualToString:@"m4r"]) {
+			[m4rFiles addObject:[tonesPath stringByAppendingPathComponent:filename]];
+		}
+	}];
+	NSLog(@"%@", m4rFiles);
+	int randomIndex = arc4random_uniform([m4rFiles count]);
+	return [NSURL URLWithString: [m4rFiles objectAtIndex:randomIndex]];
 }
 
 static __attribute__((constructor)) void _logosLocalInit() {
 {Class _logos_class$_ungrouped$TLAlertSystemSoundController = objc_getClass("TLAlertSystemSoundController"); MSHookMessageEx(_logos_class$_ungrouped$TLAlertSystemSoundController, @selector(playAlert:withCompletionHandler:), (IMP)&_logos_method$_ungrouped$TLAlertSystemSoundController$playAlert$withCompletionHandler$, (IMP*)&_logos_orig$_ungrouped$TLAlertSystemSoundController$playAlert$withCompletionHandler$);{ char _typeEncoding[1024]; unsigned int i = 0; memcpy(_typeEncoding + i, @encode(NSURL *), strlen(@encode(NSURL *))); i += strlen(@encode(NSURL *)); _typeEncoding[i] = '@'; i += 1; _typeEncoding[i] = ':'; i += 1; _typeEncoding[i] = '\0'; class_addMethod(_logos_class$_ungrouped$TLAlertSystemSoundController, @selector(randomURL), (IMP)&_logos_method$_ungrouped$TLAlertSystemSoundController$randomURL, _typeEncoding); }} }
-#line 46 "Tweak.xm"
+#line 58 "Tweak.xm"

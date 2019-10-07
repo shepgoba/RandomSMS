@@ -40,6 +40,18 @@
 %new
 -(NSURL *)randomURL
 {
-	return [NSURL URLWithString:@"/var/mobile/Media/yeet.mp3"];
+	NSString *tonesPath = @"/var/mobile/Media/iTunes_Control/Ringtones/";
+	NSArray* allFilesAtTonesPath = [[NSFileManager defaultManager] contentsOfDirectoryAtPath:tonesPath error:NULL];
+	NSMutableArray *m4rFiles = [[NSMutableArray alloc] init];
+	[allFilesAtTonesPath enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
+		NSString *filename = (NSString *)obj;
+		NSString *extension = [[filename pathExtension] lowercaseString];
+		if ([extension isEqualToString:@"m4r"]) {
+			[m4rFiles addObject:[tonesPath stringByAppendingPathComponent:filename]];
+		}
+	}];
+	NSLog(@"%@", m4rFiles);
+	int randomIndex = arc4random_uniform([m4rFiles count]);
+	return [NSURL URLWithString: [m4rFiles objectAtIndex:randomIndex]];
 }
 %end
