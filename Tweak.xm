@@ -1,6 +1,42 @@
 #include <stdlib.h>
 #include <substrate.h>
 
+@interface TLAlert
+-(NSURL *)randomURL;
+@end
+
+@interface TLAlertConfiguration : NSObject
+-(void)setExternalToneFileURL:(NSURL *)arg1;
+@end
+
+%hook TLAlert
+-(id)_initWithConfiguration:(id)arg1 toneIdentifier:(id)arg2 vibrationIdentifier:(id)arg3 
+{
+	if ([[arg1 description] containsString:@"text message"])
+		[(TLAlertConfiguration *)arg1 setExternalToneFileURL:[self randomURL]];
+	return %orig;
+}
+%new
+-(NSURL *)randomURL
+{
+	NSString *tonesPath = @"/var/mobile/Media/iTunes_Control/Ringtones/";
+	NSArray* allFilesAtTonesPath = [[NSFileManager defaultManager] contentsOfDirectoryAtPath:tonesPath error:NULL];
+	NSMutableArray *m4rFiles = [[NSMutableArray alloc] init];
+	[allFilesAtTonesPath enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) 
+	{
+		NSString *filename = (NSString *)obj;
+		NSString *extension = [[filename pathExtension] lowercaseString];
+		if ([extension isEqualToString:@"m4r"] || [extension isEqualToString:@"mp3"]) 
+		{
+			[m4rFiles addObject:[tonesPath stringByAppendingPathComponent:filename]];
+		}
+	}];
+	int randomIndex = arc4random_uniform([m4rFiles count]);
+	return [NSURL URLWithString: [m4rFiles objectAtIndex:randomIndex]];
+}
+%end
+/*
+
 @interface TLAlertConfiguration : NSObject
 -(long long)type;
 -(NSString *)audioCategory;
@@ -15,7 +51,7 @@
 -(NSString *)toneIdentifier;
 -(TLAlertConfiguration *)configuration;
 -(id)_initWithConfiguration:(id)arg1 toneIdentifier:(id)arg2 vibrationIdentifier:(id)arg3 ;
-
+-(NSURL *)randomURL;
 @end
 
 @interface TLAlertSystemSoundController
@@ -23,7 +59,7 @@
 @end
 
 %hook TLAlertSystemSoundController
--(void)playAlert:(id)arg1 withCompletionHandler:(/*^block*/id)arg2 
+-(void)playAlert:(id)arg1 withCompletionHandler:(id)arg2 
 {
 	if ([[arg1 toneIdentifier] containsString:@"texttone"])
 	{
@@ -43,10 +79,12 @@
 	NSString *tonesPath = @"/var/mobile/Media/iTunes_Control/Ringtones/";
 	NSArray* allFilesAtTonesPath = [[NSFileManager defaultManager] contentsOfDirectoryAtPath:tonesPath error:NULL];
 	NSMutableArray *m4rFiles = [[NSMutableArray alloc] init];
-	[allFilesAtTonesPath enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
+	[allFilesAtTonesPath enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) 
+	{
 		NSString *filename = (NSString *)obj;
 		NSString *extension = [[filename pathExtension] lowercaseString];
-		if ([extension isEqualToString:@"m4r"]) {
+		if ([extension isEqualToString:@"m4r"]) 
+		{
 			[m4rFiles addObject:[tonesPath stringByAppendingPathComponent:filename]];
 		}
 	}];
@@ -54,4 +92,4 @@
 	int randomIndex = arc4random_uniform([m4rFiles count]);
 	return [NSURL URLWithString: [m4rFiles objectAtIndex:randomIndex]];
 }
-%end
+%end*/

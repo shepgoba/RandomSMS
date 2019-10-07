@@ -2,25 +2,12 @@
 #include <stdlib.h>
 #include <substrate.h>
 
-@interface TLAlertConfiguration : NSObject
--(long long)type;
--(NSString *)audioCategory;
--(NSString *)topic;
--(NSString *)toneIdentifier;
--(BOOL)shouldIgnoreRingerSwitch;
--(NSURL *)externalToneFileURL;
--(void)setExternalToneFileURL:(NSURL *)arg1 ;
--(id)initWithType:(long long)arg1 ;
-@end
-@interface TLAlert : NSObject
--(NSString *)toneIdentifier;
--(TLAlertConfiguration *)configuration;
--(id)_initWithConfiguration:(id)arg1 toneIdentifier:(id)arg2 vibrationIdentifier:(id)arg3 ;
-
-@end
-
-@interface TLAlertSystemSoundController
+@interface TLAlert
 -(NSURL *)randomURL;
+@end
+
+@interface TLAlertConfiguration : NSObject
+-(void)setExternalToneFileURL:(NSURL *)arg1;
 @end
 
 
@@ -44,43 +31,94 @@
 #define _LOGOS_RETURN_RETAINED
 #endif
 
-@class TLAlertSystemSoundController; @class TLAlert; @class TLAlertConfiguration; 
-static void (*_logos_orig$_ungrouped$TLAlertSystemSoundController$playAlert$withCompletionHandler$)(_LOGOS_SELF_TYPE_NORMAL TLAlertSystemSoundController* _LOGOS_SELF_CONST, SEL, id, id); static void _logos_method$_ungrouped$TLAlertSystemSoundController$playAlert$withCompletionHandler$(_LOGOS_SELF_TYPE_NORMAL TLAlertSystemSoundController* _LOGOS_SELF_CONST, SEL, id, id); static NSURL * _logos_method$_ungrouped$TLAlertSystemSoundController$randomURL(_LOGOS_SELF_TYPE_NORMAL TLAlertSystemSoundController* _LOGOS_SELF_CONST, SEL); 
-static __inline__ __attribute__((always_inline)) __attribute__((unused)) Class _logos_static_class_lookup$TLAlertConfiguration(void) { static Class _klass; if(!_klass) { _klass = objc_getClass("TLAlertConfiguration"); } return _klass; }static __inline__ __attribute__((always_inline)) __attribute__((unused)) Class _logos_static_class_lookup$TLAlert(void) { static Class _klass; if(!_klass) { _klass = objc_getClass("TLAlert"); } return _klass; }
-#line 25 "Tweak.xm"
+@class TLAlert; 
+static id (*_logos_orig$_ungrouped$TLAlert$_initWithConfiguration$toneIdentifier$vibrationIdentifier$)(_LOGOS_SELF_TYPE_NORMAL TLAlert* _LOGOS_SELF_CONST, SEL, id, id, id); static id _logos_method$_ungrouped$TLAlert$_initWithConfiguration$toneIdentifier$vibrationIdentifier$(_LOGOS_SELF_TYPE_NORMAL TLAlert* _LOGOS_SELF_CONST, SEL, id, id, id); static NSURL * _logos_method$_ungrouped$TLAlert$randomURL(_LOGOS_SELF_TYPE_NORMAL TLAlert* _LOGOS_SELF_CONST, SEL); 
+
+#line 12 "Tweak.xm"
 
 
-static void _logos_method$_ungrouped$TLAlertSystemSoundController$playAlert$withCompletionHandler$(_LOGOS_SELF_TYPE_NORMAL TLAlertSystemSoundController* _LOGOS_SELF_CONST __unused self, SEL __unused _cmd, id arg1, id arg2)  {
-	if ([[arg1 toneIdentifier] containsString:@"texttone"])
-	{
-		TLAlertConfiguration *newConfig = [[_logos_static_class_lookup$TLAlertConfiguration() alloc] initWithType:0];
-		[newConfig setExternalToneFileURL:[self randomURL]];
-		TLAlert *newAlert = [[_logos_static_class_lookup$TLAlert() alloc] _initWithConfiguration:newConfig toneIdentifier:nil vibrationIdentifier:nil];
-		_logos_orig$_ungrouped$TLAlertSystemSoundController$playAlert$withCompletionHandler$(self, _cmd, newAlert, arg2);
-	}
-	else
-	{
-		_logos_orig$_ungrouped$TLAlertSystemSoundController$playAlert$withCompletionHandler$(self, _cmd, arg1, arg2);
-	}
+static id _logos_method$_ungrouped$TLAlert$_initWithConfiguration$toneIdentifier$vibrationIdentifier$(_LOGOS_SELF_TYPE_NORMAL TLAlert* _LOGOS_SELF_CONST __unused self, SEL __unused _cmd, id arg1, id arg2, id arg3)  {
+	if ([[arg1 description] containsString:@"text message"])
+		[(TLAlertConfiguration *)arg1 setExternalToneFileURL:[self randomURL]];
+	return _logos_orig$_ungrouped$TLAlert$_initWithConfiguration$toneIdentifier$vibrationIdentifier$(self, _cmd, arg1, arg2, arg3);
 }
 
 
-static NSURL * _logos_method$_ungrouped$TLAlertSystemSoundController$randomURL(_LOGOS_SELF_TYPE_NORMAL TLAlertSystemSoundController* _LOGOS_SELF_CONST __unused self, SEL __unused _cmd) {
+static NSURL * _logos_method$_ungrouped$TLAlert$randomURL(_LOGOS_SELF_TYPE_NORMAL TLAlert* _LOGOS_SELF_CONST __unused self, SEL __unused _cmd) {
 	NSString *tonesPath = @"/var/mobile/Media/iTunes_Control/Ringtones/";
 	NSArray* allFilesAtTonesPath = [[NSFileManager defaultManager] contentsOfDirectoryAtPath:tonesPath error:NULL];
 	NSMutableArray *m4rFiles = [[NSMutableArray alloc] init];
-	[allFilesAtTonesPath enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
+	[allFilesAtTonesPath enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) 
+	{
 		NSString *filename = (NSString *)obj;
 		NSString *extension = [[filename pathExtension] lowercaseString];
-		if ([extension isEqualToString:@"m4r"]) {
+		if ([extension isEqualToString:@"m4r"] || [extension isEqualToString:@"mp3"]) 
+		{
 			[m4rFiles addObject:[tonesPath stringByAppendingPathComponent:filename]];
 		}
 	}];
-	NSLog(@"%@", m4rFiles);
 	int randomIndex = arc4random_uniform([m4rFiles count]);
 	return [NSURL URLWithString: [m4rFiles objectAtIndex:randomIndex]];
 }
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 static __attribute__((constructor)) void _logosLocalInit() {
-{Class _logos_class$_ungrouped$TLAlertSystemSoundController = objc_getClass("TLAlertSystemSoundController"); MSHookMessageEx(_logos_class$_ungrouped$TLAlertSystemSoundController, @selector(playAlert:withCompletionHandler:), (IMP)&_logos_method$_ungrouped$TLAlertSystemSoundController$playAlert$withCompletionHandler$, (IMP*)&_logos_orig$_ungrouped$TLAlertSystemSoundController$playAlert$withCompletionHandler$);{ char _typeEncoding[1024]; unsigned int i = 0; memcpy(_typeEncoding + i, @encode(NSURL *), strlen(@encode(NSURL *))); i += strlen(@encode(NSURL *)); _typeEncoding[i] = '@'; i += 1; _typeEncoding[i] = ':'; i += 1; _typeEncoding[i] = '\0'; class_addMethod(_logos_class$_ungrouped$TLAlertSystemSoundController, @selector(randomURL), (IMP)&_logos_method$_ungrouped$TLAlertSystemSoundController$randomURL, _typeEncoding); }} }
-#line 58 "Tweak.xm"
+{Class _logos_class$_ungrouped$TLAlert = objc_getClass("TLAlert"); MSHookMessageEx(_logos_class$_ungrouped$TLAlert, @selector(_initWithConfiguration:toneIdentifier:vibrationIdentifier:), (IMP)&_logos_method$_ungrouped$TLAlert$_initWithConfiguration$toneIdentifier$vibrationIdentifier$, (IMP*)&_logos_orig$_ungrouped$TLAlert$_initWithConfiguration$toneIdentifier$vibrationIdentifier$);{ char _typeEncoding[1024]; unsigned int i = 0; memcpy(_typeEncoding + i, @encode(NSURL *), strlen(@encode(NSURL *))); i += strlen(@encode(NSURL *)); _typeEncoding[i] = '@'; i += 1; _typeEncoding[i] = ':'; i += 1; _typeEncoding[i] = '\0'; class_addMethod(_logos_class$_ungrouped$TLAlert, @selector(randomURL), (IMP)&_logos_method$_ungrouped$TLAlert$randomURL, _typeEncoding); }} }
+#line 96 "Tweak.xm"
