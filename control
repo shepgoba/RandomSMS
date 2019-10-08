@@ -3,7 +3,7 @@ Name: randtexttone
 Depends: mobilesubstrate
 Version: 1.0
 Architecture: iphoneos-arm
-Description: An awesome MobileSubstrate tweak!
+Description: iOS 11+ tweak to play a random tone when you receive a text (fulfills tweak bounty)
 Maintainer: shepgoba
 Author: shepgoba
 Section: Tweaks
