@@ -1,5 +1,5 @@
-Package: com.shepgoba.randtexttone
-Name: randtexttone
+Package: com.shepgoba.randomsms
+Name: RandomSMS
 Depends: mobilesubstrate
 Version: 1.0
 Architecture: iphoneos-arm
