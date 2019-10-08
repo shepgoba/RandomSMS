@@ -1,5 +1,6 @@
-#include <stdlib.h>
-#include <substrate.h>
+#import <stdlib.h>
+#import <substrate.h>
+#import <AVFoundation/AVFoundation.h> 
 
 @interface TLAlert
 -(NSURL *)randomURL;
@@ -12,6 +13,7 @@
 %hook TLAlert
 -(id)_initWithConfiguration:(id)arg1 toneIdentifier:(id)arg2 vibrationIdentifier:(id)arg3 
 {
+	/* Isolate SMS/iMessage alerts */
 	if ([[arg1 description] containsString:@"text message"])
 		[(TLAlertConfiguration *)arg1 setExternalToneFileURL:[self randomURL]];
 	return %orig;
@@ -21,18 +23,25 @@
 {
 	NSString *tonesPath = @"/var/mobile/Media/iTunes_Control/Ringtones/";
 	NSArray* allFilesAtTonesPath = [[NSFileManager defaultManager] contentsOfDirectoryAtPath:tonesPath error:NULL];
-	NSMutableArray *m4rFiles = [[NSMutableArray alloc] init];
+	NSMutableArray *musicFiles = [[NSMutableArray alloc] init];
 	[allFilesAtTonesPath enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) 
 	{
 		NSString *filename = (NSString *)obj;
 		NSString *extension = [[filename pathExtension] lowercaseString];
 		if ([extension isEqualToString:@"m4r"] || [extension isEqualToString:@"mp3"]) 
 		{
-			[m4rFiles addObject:[tonesPath stringByAppendingPathComponent:filename]];
+			AVAudioPlayer *sound = [[AVAudioPlayer alloc] initWithContentsOfURL:[NSURL URLWithString:[tonesPath stringByAppendingPathComponent:filename]] error:nil];
+			NSLog(@"%@",[NSString stringWithFormat:@"%f", [sound duration]]);
+			if ([sound duration] <= 10)
+				[musicFiles addObject:[tonesPath stringByAppendingPathComponent:filename]];
 		}
 	}];
-	int randomIndex = arc4random_uniform([m4rFiles count]);
-	return [NSURL URLWithString: [m4rFiles objectAtIndex:randomIndex]];
+	int randomIndex = arc4random_uniform([musicFiles count]);
+
+	if ([musicFiles count] > 0)
+		return [NSURL URLWithString: [musicFiles objectAtIndex:randomIndex]];
+	else
+		return nil;
 }
 %end
 /*
